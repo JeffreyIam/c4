@@ -18,20 +18,38 @@
         position: relative;
         background: white;
       }
-    </style>
+      .cell.active-r {
+        background-color: red;
+        display:block;
+      }
+      .cell.active-y {
+        background-color: yellow;
+        display:block;
+      }
+     </style>
   </head>
 
 <body>
   <div class="container" ng-app="c4" ng-controller="mainCtrl as main">
     <div class="title">
-      <h3>Connect Four</h3>
+      <h1 style="text-align: center">Connect Four</h3>
     </div>
+    <div class="turn">
+      <h2 style="text-align:center">{{main.active}}'s turn</h2>
+    </div>
+    <div class="reset" style="text-align:center">
+      <button ng-click="main.init()">Reset</button>
+    </div>
+    <br>
     <div class="board">
       <span class="row" ng-repeat="row in main.boardState">
-        <div ng-repeat="cell in row track by $index" class="cell"></div>
+        <div ng-repeat="cell in row track by $index" class="cell active-{{cell}}" ng-click="main.drop($parent.$index, $index)"></div>
       </span>
     </div>
+    <div>
+    </div>
   </div>
+
 
   <script>
     angular.module('c4', [])
@@ -40,6 +58,7 @@
         let game = this;
 
         game.init = function() {
+          console.log('init')
           game.boardState = [
             [0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
@@ -49,7 +68,25 @@
             [0, 0, 0, 0, 0, 0]
           ]
         }
+
         game.init()
+        game.active = 'r'
+
+        game.drop = function(index1, index2, input) {
+          let lastIndex = input || game.boardState.length - 1
+
+          if(game.boardState[lastIndex][index2] === 0) {
+            game.boardState[lastIndex][index2] = game.active
+
+            game.active = game.active ===  'r' ? 'y' : 'r'
+          } else {
+            while(game.boardState[lastIndex][index2] !== 0 && lastIndex >= 0) {
+              lastIndex -= 1
+            }
+
+            game.drop(lastIndex, index2, lastIndex)
+          }
+        }
 
       }])
   </script>
