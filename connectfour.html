@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.js'></script>
+    <style>
+      .cell {
+        width: 65px;
+        height: 65px;
+        position: relative;
+        overflow: hidden;
+        float: left;
+        border: 5px solid rgb(95, 200, 360)
+      }
+      .board {
+        width: 450px;
+        margin: 0 auto;
+        position: relative;
+        background: white;
+      }
+    </style>
+  </head>
+
+<body>
+  <div class="container" ng-app="c4" ng-controller="mainCtrl as main">
+    <div class="title">
+      <h3>Connect Four</h3>
+    </div>
+    <div class="board">
+      <span class="row" ng-repeat="row in main.boardState">
+        <div ng-repeat="cell in row track by $index" class="cell"></div>
+      </span>
+    </div>
+  </div>
+
+  <script>
+    angular.module('c4', [])
+      .controller('mainCtrl', ['$scope', function($scope) {
+
+        let game = this;
+
+        game.init = function() {
+          game.boardState = [
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0]
+          ]
+        }
+        game.init()
+
+      }])
+  </script>
+</body>
+</html>
