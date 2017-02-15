@@ -1,0 +1,23 @@
+{
+  "name": "C4",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+   "dependencies": {
+    "express": "^4.4.5",
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JeffreyIam/c4.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JeffreyIam/c4/issues"
+  },
+  "homepage": "https://github.com/JeffreyIam/c4#readme"
+}
