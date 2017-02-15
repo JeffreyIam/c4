@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.js"></script>
+
+  <style>
+    html * {
+      font-family: sans-serif
+    }
+
+    .board {
+      width: 450px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 16px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      -webkit-transition-duration: 0.4s;
+      / transition-duration: 0.4s;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .cell {
+      width: 65px;
+      height: 65px;
+      position: relative;
+      overflow: hidden;
+      float: left;
+      border: 5px solid rgb(95, 300, 130);
+    }
+
+    .cell:before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 100%;
+      box-shadow: 0px 0px 0px 10px rgb(95, 300, 130);
+    }
+
+    .cell.turn-b {
+      background-color: blue;
+      display: block;
+    }
+
+    .cell.turn-g {
+      background-color: green;
+      display: block;
+    }
+
+    .overlay {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      background-color: rgb(0, 0, 0);
+      background-color: rgba(0, 0, 0, 0.9);
+      overflow-x: hidden;
+      transition: 0.5s;
+    }
+
+    .overlay .closebtn {
+      position: absolute;
+      top: 20px;
+      right: 45px;
+      font-size: 60px;
+    }
+
+    .overlay a {
+      font-size: 40px;
+      color: grey;
+      padding: 8px;
+      text-decoration: none;
+      font-size: 36px;
+      color: #818181;
+      display: block;
+      transition: 0.3s;
+    }
+
+    .overlay a:hover,
+    .overlay a:focus {
+      font-size: 80px;
+      color: white;
+    }
+
+    .overlay-content {
+      position: relative;
+      top: 25%;
+      width: 100%;
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .title {
+      text-align: center;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div style="position: fixed; z-index: -99; width: 100%; height: 100%">
+    <iframe frameborder="0" height="100%" width="100%" autoplay loop src="https://www.youtube.com/embed/3zShaq61usw?autoplay=1&controls=0&showinfo=0&autohide=1">
+    </iframe>
+  </div>
+
+  <div class="container" ng-app="c4" ng-controller="mainCtrl as main">
+    <table></table>
+    <div id="myNav" class="overlay">
+      <a href="javascript:void(0)" class="closebtn" ng-click="main.closeNav()">&times;</a>
+      <div class="overlay-content">
+        <a class="winner" ng-if="main.winner === 'bbbb'">Blue Won!</a>
+        <a ng-if="main.winner === 'gggg'">Green Won!</a>
+        <a ng-click="main.init(); main.closeNav()">Play Again</a>
+      </div>
+    </div>
+
+    <div class="title">
+      <h1>Connect Four</h3>
+    </div>
+    <div class="title">
+      <button class="button" ng-click="main.init()">Restart</button>
+    </div>
+    <div class="title turn">
+      <h2 ng-if="main.turn === 'b'">Blue's turn</h2>
+      <h2 ng-if="main.turn === 'g'">Green's turn</h2>
+    </div>
+    <br>
+    <div class="board">
+      <span class="row" ng-repeat="row in main.boardState">
+        <div ng-repeat="cell in row track by $index" class="cell turn-{{cell}}" ng-click="main.drop($index)"></div>
+      </span>
+    </div>
+    <div>
+    </div>
+  </div>
+
+  <script>
+    angular.module('c4', [])
+        .controller('mainCtrl', ['$scope', function ($scope) {
+          let game = this
+
+          game.init = function () {
+            game.boardState = [
+              [0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0]
+            ]
+          }
+
+          game.init()
+          game.turn = 'b'
+          game.winner = null
+
+          game.won = function () {
+            for (let i = 0; i < game.boardState[0].length; i++) {
+              let row = game.row(i)
+              let col = game.col(i)
+              let possibleWinRow = row.join('').match(/b{4}|g{4}/)
+              let possibleWinCol = col.join('').match(/b{4}|g{4}/)
+              if (possibleWinRow) {
+                game.winner = possibleWinRow[0]
+                game.openNav()
+              } else if (possibleWinCol) {
+                game.winner = possibleWinCol[0]
+                game.openNav()
+              }
+            }
+            let diag = game.diag()
+            for (let i = 0; i < diag.length; i++) {
+              let possibleWinDiag = diag[i].join('').match(/b{4}|g{4}/)
+              if (possibleWinDiag) {
+                game.winner = possibleWinDiag[0]
+                game.openNav()
+              }
+            }
+          }
+
+          game.row = function (row) {
+            let aRow = []
+            for (let i = 0; i < game.boardState[0].length; i++) {
+              aRow.push(game.boardState[row][i])
+            }
+            return aRow
+          }
+
+          game.col = function (col) {
+            let aCol = []
+            for (let i = 0; i < game.boardState[0].length; i++) {
+              aCol.push(game.boardState[i][col])
+            }
+            return aCol
+          }
+
+          game.diag = function () {
+            let diag = []
+            let arr = game.boardState
+            for (let j = -5; j < 7; j++) {
+              let group = []
+              for (let k = 0; k < 6; k++) {
+                if ((j + k) >= 0 && (j + k) < 6) {
+                  group.push(arr[k][j + k])
+                }
+              }
+              diag.push(group)
+            }
+
+            for (let j = 0; j < 12; j++) {
+              let group = []
+              for (let k = 5; k >= 0; k--) {
+                if ((j - k) >= 0 && (j - k) < 7) {
+                  group.push(arr[k][j - k])
+                }
+              }
+              diag.push(group)
+            }
+            return diag
+          }
+
+          game.drop = function (index2, input) {
+            let lastIndex = input || game.boardState.length - 1
+
+            if (game.boardState[lastIndex][index2] === 0) {
+              game.boardState[lastIndex][index2] = game.turn
+              game.won()
+              game.turn = game.turn === 'b' ? 'g' : 'b'
+            } else {
+              while (game.boardState[lastIndex] && game.boardState[lastIndex][index2] !== 0 && lastIndex > 0) {
+                lastIndex -= 1
+              }
+              if (lastIndex === 0) {
+                game.boardState[lastIndex][index2] = game.turn
+                game.won()
+                return game.turn = game.turn === 'b' ? 'g' : 'b'
+              }
+              game.drop(index2, lastIndex)
+            }
+          }
+
+          game.openNav = function () {
+            document.getElementById('myNav').style.width = '100%'
+          }
+
+          game.closeNav = function () {
+            document.getElementById('myNav').style.width = '0%'
+          }
+        }])
+  </script>
+</body>
+
+</html>
